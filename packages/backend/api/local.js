@@ -8,7 +8,7 @@ const app = build({
     id: auth.web.client_id,
     secret: auth.web.client_secret
   },
-  callbackUrl: 'http://localhost:3003/login/google/callback',
+  callbackUrl: 'http://localhost:3003/api/login/google/callback',
   cookieSecret: auth.web.project_id
 })
 

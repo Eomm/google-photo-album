@@ -1,0 +1,37 @@
+{
+  "name": "google-photo-album-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Upload photo to a Google Photo Album",
+  "scripts": {
+    "start:local": "node api/local",
+    "lint:fix": "standard --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eomm/google-photo-album.git"
+  },
+  "keywords": [],
+  "author": "Manuel Spigolon <behemoth89@gmail.com> (https://github.com/Eomm)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Eomm/google-photo-album/issues"
+  },
+  "engines": {
+    "node": "10.x"
+  },
+  "homepage": "https://github.com/Eomm/google-photo-album#readme",
+  "devDependencies": {
+    "standard": "^14.3.4"
+  },
+  "dependencies": {
+    "fastify": "^2.14.1",
+    "fastify-cookie": "^3.6.1",
+    "fastify-formbody": "^3.2.0",
+    "fastify-multipart": "^1.0.6",
+    "fastify-oauth2": "^3.3.0",
+    "got": "^11.1.3",
+    "jimp": "^0.10.3"
+  }
+}

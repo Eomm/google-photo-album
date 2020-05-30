@@ -1,36 +1,19 @@
 {
   "name": "google-photo-album",
   "version": "1.0.0",
-  "description": "Upload photo to a Google Photo Album",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "lint:fix": "standard --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Eomm/google-photo-album.git"
+    "install:all": "lerna bootstrap",
+    "start:local": "lerna run start:local"
   },
   "keywords": [],
   "author": "Manuel Spigolon <behemoth89@gmail.com> (https://github.com/Eomm)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Eomm/google-photo-album/issues"
-  },
-  "engines": {
-    "node": "10.x"
-  },
-  "homepage": "https://github.com/Eomm/google-photo-album#readme",
   "devDependencies": {
-    "standard": "^14.3.4"
+    "lerna": "^3.22.0"
   },
   "dependencies": {
-    "fastify": "^2.14.1",
-    "fastify-cookie": "^3.6.1",
-    "fastify-formbody": "^3.2.0",
-    "fastify-multipart": "^1.0.6",
-    "fastify-oauth2": "^3.3.0",
-    "got": "^11.1.3",
-    "jimp": "^0.10.3"
+    "fastify-static": "^2.7.0"
   }
 }

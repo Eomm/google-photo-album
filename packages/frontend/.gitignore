@@ -104,4 +104,4 @@ dist
 .tern-port
 
 nest-api-credentials.json
-package-lock.json
+build/*

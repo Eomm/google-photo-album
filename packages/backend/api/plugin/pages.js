@@ -1,9 +1,16 @@
 'use strict'
 
-const photoApi = require('./google-photo')
+const fastifyStatic = require('fastify-static')
+const photoApi = require('../google-photo')
 
 module.exports = function (fastify, opts, next) {
-  fastify.get('/', async (request, reply) => {
+  const path = require('path')
+
+  fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '../../../frontend/build')
+  })
+
+  fastify.get('/asd', async (request, reply) => {
     const accessToken = request.getAccessToken(reply)
     if (accessToken) {
       const albums = await photoApi.readAlbums(accessToken)

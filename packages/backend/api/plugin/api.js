@@ -1,20 +1,13 @@
 'use strict'
 
 const Jimp = require('jimp')
-const Fastify = require('fastify')
 const oauthPlugin = require('fastify-oauth2')
 const fastifyCookie = require('fastify-cookie')
 const fastifyFormBody = require('fastify-formbody')
 const fastifyMultipart = require('fastify-multipart')
+const photoApi = require('../google-photo')
 
-const pages = require('./pages')
-const photoApi = require('./google-photo')
-
-function build (opts) {
-  const fastify = Fastify({ logger: true })
-
-  fastify.register(pages, opts)
-
+module.exports = (fastify, opts, next) => {
   fastify.register(fastifyFormBody)
   fastify.register(fastifyMultipart, { addToBody: true })
 
@@ -49,7 +42,7 @@ function build (opts) {
 
     reply.setCookie('acg', accessToken.access_token, {
       path: '/',
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 60 * 24,
       sameSite: true,
       signed: true
@@ -67,7 +60,19 @@ function build (opts) {
     const album = await photoApi.createAlbum(accessToken, request.body.title)
     request.log.debug('Created album', album)
 
-    return reply.redirect('/')
+    return album
+  })
+
+  fastify.get('/album/list', async function (request, reply) {
+    const accessToken = request.getAccessToken(reply)
+    if (!accessToken) {
+      return 'NOT AUTHORIZED'
+    }
+
+    const albums = await photoApi.readAlbums(accessToken)
+    request.log.debug('Read albums', albums)
+
+    return albums.albums
   })
 
   fastify.post('/album/upload', async function (request, reply) {
@@ -76,38 +81,33 @@ function build (opts) {
       return 'NOT AUTHORIZED'
     }
 
-    const photo = request.body.importFile[0]
+    // serial upload
+    const out = []
+    const { album } = request.body
+    for (const f of request.body.importFile) {
+      const res = await uploadImageToAlbum(accessToken, f, album)
+      out.push(res)
+    }
 
-    const font = await Jimp.loadFont('./fonts/FrancoisOne-white-80.fnt')
-    const image = await Jimp.read(photo.data)
-
-    const buff = await image.resize(1024, 600)
-      // .print(font, 10, 10, 'Hello world!')
-      .print(font, 0, 0, {
-        text: request.body.text || '',
-        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-        alignmentY: Jimp.VERTICAL_ALIGN_BOTTOM
-      },
-      1024, 580)
-      .getBufferAsync(photo.mimetype)
-
-    const imageToken = await photoApi.uploadImage(accessToken, photo.mimetype, buff)
-    request.log.debug('Uploaded image')
-
-    await photoApi.storeImageInAlbum(accessToken, photo.filename, imageToken, request.body.album)
-
-    reply.type('text/html')
-    return `
-    <html>
-    <body>
-      DONE!!
-      <a href="/">Back</a>
-    </body>
-    </html>
-    `
+    return out
   })
-
-  return fastify
+  next()
 }
 
-module.exports = build
+async function uploadImageToAlbum (accessToken, photo, album) {
+  // TODO cache font
+  const font = await Jimp.loadFont('./fonts/FrancoisOne-white-80.fnt')
+  const image = await Jimp.read(photo.data)
+
+  const buff = await image.resize(1024, 600)
+    .print(font, 0, 0, {
+      text: photo.filename,
+      alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+      alignmentY: Jimp.VERTICAL_ALIGN_BOTTOM
+    },
+    1024, 580) // TODO input resize
+    .getBufferAsync(photo.mimetype)
+
+  const imageToken = await photoApi.uploadImage(accessToken, photo.mimetype, buff)
+  return photoApi.storeImageInAlbum(accessToken, photo.filename, imageToken, album)
+}
